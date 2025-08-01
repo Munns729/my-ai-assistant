@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">All Insights</h1>
+        <a href="{{ url_for('home') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">New Analysis</a>
+    </div>
+
+    {% if insights %}
+    <div class="grid gap-6">
+        {% for insight in insights %}
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ insight.title or 'Untitled Insight' }}</h2>
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span>Type: {{ insight.source_type or 'Unknown' }}</span>
+                        <span>Created: {{ insight.created_at[:10] if insight.created_at else 'Unknown date' }}</span>
+                        {% if insight.source_url %}
+                        <a href="{{ insight.source_url }}" target="_blank" class="text-blue-600 hover:text-blue-800">Source</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <a href="{{ url_for('view_insight', insight_id=insight.id) }}" 
+                   class="bg-gray-100 text-gray-700 px-3 py-1 rounded-md hover:bg-gray-200 text-sm">View Details</a>
+            </div>
+            
+            <div class="mb-4">
+                <h3 class="font-medium text-gray-900 mb-2">Original Content:</h3>
+                <div class="bg-gray-50 p-3 rounded-md text-sm text-gray-700">
+                    {{ insight.content[:300] }}{% if insight.content|length > 300 %}...{% endif %}
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-medium text-gray-900 mb-2">AI Insights:</h3>
+                <div class="bg-blue-50 p-3 rounded-md text-sm text-gray-700">
+                    {{ insight.insights[:300] }}{% if insight.insights|length > 300 %}...{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 text-6xl mb-4">🤖</div>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-2">No Insights Yet</h2>
+        <p class="text-gray-600 mb-6">Start by analyzing some content to see your first AI insights!</p>
+        <a href="{{ url_for('home') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium">
+            Analyze Your First Content
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <a href="{{ url_for('view_all_insights') }}" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">← Back to All Insights</a>
+        <h1 class="text-3xl font-bold text-gray-900">{{ insight.title or 'Untitled Insight' }}</h1>
+        <div class="flex items-center space-x-4 text-sm text-gray-500 mt-2">
+            <span>Type: {{ insight.source_type or 'Unknown' }}</span>
+            <span>Created: {{ insight.created_at[:10] if insight.created_at else 'Unknown date' }}</span>
+            {% if insight.source_url %}
+            <a href="{{ insight.source_url }}" target="_blank" class="text-blue-600 hover:text-blue-800">View Source</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid gap-6">
+        <!-- Original Content -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Original Content</h2>
+            <div class="bg-gray-50 p-4 rounded-md">
+                <pre class="whitespace-pre-wrap text-sm text-gray-700">{{ insight.content }}</pre>
+            </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">🤖 AI Analysis</h2>
+            <div class="bg-blue-50 p-4 rounded-md">
+                <pre class="whitespace-pre-wrap text-sm text-gray-700">{{ insight.insights }}</pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center">
+        <a href="{{ url_for('home') }}" class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium">
+            Analyze New Content
+        </a>
+    </div>
+</div>
+{% endblock %} 
