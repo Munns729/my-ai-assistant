@@ -1,72 +1,299 @@
 {% extends "base.html" %}
 
+{% block title %}AI Knowledge Assistant - Home{% endblock %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">AI Knowledge Assistant</h1>
-        <p class="text-xl text-gray-600">Analyze content and extract AI insights</p>
+<div class="space-y-8">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-8 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl font-bold mb-4">
+                <i class="fas fa-brain mr-3"></i>AI Knowledge Assistant
+            </h1>
+            <p class="text-xl mb-6">Transform YouTube videos, articles, and content into actionable AI insights</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <div class="flex items-center bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <i class="fas fa-lightbulb mr-2"></i>
+                    <span>Smart Analysis</span>
+                </div>
+                <div class="flex items-center bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <i class="fas fa-tags mr-2"></i>
+                    <span>Auto-Categorization</span>
+                </div>
+                <div class="flex items-center bg-white bg-opacity-20 rounded-lg px-4 py-2">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    <span>Analytics Dashboard</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Analysis Form -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-2xl font-semibold mb-4">Analyze Content</h2>
-        
-        <form method="POST" action="{{ url_for('analyze_content') }}">
-            <div class="mb-4">
-                <label for="content_type" class="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
-                <select name="content_type" id="content_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="youtube">YouTube Video</option>
-                    <option value="article">Article</option>
-                    <option value="email">Email</option>
-                    <option value="general">General Content</option>
-                </select>
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Analysis Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-magic text-primary mr-2"></i>Analyze Content
+                </h2>
+                
+                <form action="{{ url_for('analyze_content') }}" method="POST" class="space-y-6">
+                    <!-- Content Type Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag mr-2"></i>Content Type
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="content_type" value="youtube" checked class="mr-3 text-primary">
+                                <div>
+                                    <div class="flex items-center">
+                                        <i class="fab fa-youtube text-red-500 mr-2"></i>
+                                        <span class="font-medium">YouTube</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Video analysis</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="content_type" value="article" class="mr-3 text-primary">
+                                <div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-newspaper text-blue-500 mr-2"></i>
+                                        <span class="font-medium">Article</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">News & blogs</p>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                                <input type="radio" name="content_type" value="email" class="mr-3 text-primary">
+                                <div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-envelope text-green-500 mr-2"></i>
+                                        <span class="font-medium">Email</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500">Newsletters</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- YouTube URL (Optional) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fab fa-youtube mr-2"></i>YouTube URL (Optional)
+                        </label>
+                        <input type="url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." 
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
+                    </div>
+
+                    <!-- Content Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-edit mr-2"></i>Content to Analyze
+                        </label>
+                        <textarea name="manual_content" rows="8" required
+                                  placeholder="Paste your content here... (e.g., video description, article text, email content)"
+                                  class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent resize-none"></textarea>
+                        <p class="text-sm text-gray-500 mt-1">Maximum 3000 characters for optimal analysis</p>
+                    </div>
+
+                    <!-- Tags Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tags mr-2"></i>Tags (Optional)
+                        </label>
+                        <input type="text" name="tags" placeholder="ai, technology, business, startup" 
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <p class="text-sm text-gray-500 mt-1">Comma-separated tags to help organize insights</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center">
+                        <button type="submit" 
+                                class="bg-primary hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center">
+                            <i class="fas fa-brain mr-2"></i>
+                            🤖 Analyze with AI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Stats -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-chart-line text-primary mr-2"></i>Quick Stats
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Total Insights</span>
+                        <span class="font-semibold text-gray-900">{{ analytics.get('total_insights', 0) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">This Week</span>
+                        <span class="font-semibold text-green-600">{{ analytics.get('insights_this_week', 0) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">Avg Confidence</span>
+                        <span class="font-semibold text-yellow-600">{{ "%.1f"|format(analytics.get('avg_confidence', 0) * 100) }}%</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-4">
-                <label for="video_url" class="block text-sm font-medium text-gray-700 mb-2">Source URL (Optional)</label>
-                <input type="url" name="video_url" id="video_url" placeholder="https://youtube.com/watch?v=..." 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Popular Tags -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-tags text-primary mr-2"></i>Popular Tags
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    {% if popular_tags %}
+                        {% for tag in popular_tags[:8] %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            {{ tag.tag }}
+                            <span class="ml-1 text-blue-600">({{ tag.count }})</span>
+                        </span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-sm text-gray-500">No tags yet</span>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="mb-6">
-                <label for="manual_content" class="block text-sm font-medium text-gray-700 mb-2">Content to Analyze</label>
-                <textarea name="manual_content" id="manual_content" rows="8" required
-                          placeholder="Paste the content you want to analyze here..."
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <!-- Categories -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-folder text-primary mr-2"></i>Categories
+                </h3>
+                <div class="space-y-2">
+                    {% if categories %}
+                        {% for category in categories %}
+                        <a href="{{ url_for('category_insights', category_name=category.name) }}" 
+                           class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors">
+                            <span class="text-lg mr-2">{{ category.emoji }}</span>
+                            <span class="text-sm font-medium text-gray-700">{{ category.name }}</span>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-sm text-gray-500">No categories available</span>
+                    {% endif %}
+                </div>
             </div>
 
-            <button type="submit" 
-                    class="w-full bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
-                🤖 Analyze with AI
-            </button>
-        </form>
+            <!-- Pro Tips -->
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-6 border border-yellow-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>Pro Tips
+                </h3>
+                <div class="space-y-3 text-sm text-gray-700">
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>Copy video descriptions and comments for best results</span>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>Include key metrics and numbers when available</span>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>Add tags to help organize your insights</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Insights -->
     {% if recent_insights %}
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-semibold mb-4">Recent Insights</h2>
-        <div class="space-y-4">
-            {% for insight in recent_insights %}
-            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-semibold text-gray-900">{{ insight.title or 'Untitled Insight' }}</h3>
-                    <span class="text-sm text-gray-500">{{ insight.created_at[:10] if insight.created_at else 'Unknown date' }}</span>
-                </div>
-                <p class="text-gray-600 text-sm mb-2">{{ insight.content[:200] }}{% if insight.content|length > 200 %}...{% endif %}</p>
-                <div class="text-xs text-gray-500">
-                    Type: {{ insight.source_type or 'Unknown' }}
-                </div>
-                <a href="{{ url_for('view_insight', insight_id=insight.id) }}" 
-                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details →</a>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="mt-4 text-center">
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-clock text-primary mr-2"></i>Recent Insights
+            </h2>
             <a href="{{ url_for('view_all_insights') }}" 
-               class="text-blue-600 hover:text-blue-800 font-medium">View All Insights →</a>
+               class="text-primary hover:text-blue-600 font-medium">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% if recent_insights %}
+                {% for insight in recent_insights %}
+                <div class="insight-card bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center">
+                            {% if insight.category %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ insight.category }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <button onclick="toggleFavorite({{ insight.id }}, {{ 'true' if insight.is_favorite else 'false' }})"
+                                data-insight-id="{{ insight.id }}"
+                                class="text-gray-400 hover:text-yellow-400 transition-colors">
+                            <i class="{{ 'fas fa-star text-yellow-400' if insight.is_favorite else 'far fa-star' }}"></i>
+                        </button>
+                    </div>
+                    
+                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
+                        {{ insight.title or 'Untitled Insight' }}
+                    </h3>
+                    
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-3">
+                        {{ insight.summary or insight.insights[:150] + '...' if insight.insights|length > 150 else insight.insights }}
+                    </p>
+                    
+                    <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ insight.created_at }}</span>
+                        <a href="{{ url_for('view_insight', insight_id=insight.id) }}" 
+                           class="text-primary hover:text-blue-600">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-span-full text-center py-8">
+                    <i class="fas fa-lightbulb text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">No insights yet. Start by analyzing some content!</p>
+                </div>
+            {% endif %}
         </div>
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Character counter for textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="manual_content"]');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            const maxLength = 3000;
+            const currentLength = this.value.length;
+            const remaining = maxLength - currentLength;
+            
+            // Update character count display
+            const counter = this.parentElement.querySelector('p');
+            if (counter) {
+                if (remaining < 100) {
+                    counter.className = 'text-sm text-red-500 mt-1';
+                } else {
+                    counter.className = 'text-sm text-gray-500 mt-1';
+                }
+                counter.textContent = `${remaining} characters remaining`;
+            }
+        });
+
+        // Auto-resize textarea
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+});
+</script>
 {% endblock %}

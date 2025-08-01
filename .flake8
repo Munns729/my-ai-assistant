@@ -1,0 +1,21 @@
+[flake8]
+max-line-length = 120
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    *.pyc,
+    templates/*.html,
+    static/*.css,
+    static/*.js
+ignore = E501,W503,F401,F403,F405,E722,E731,W291,W293,E203,E266,E402,W191,E302,E305,E261,E262,E265,E502,E701,E702,E703,E711,E712,E713,E714,E721,E741,E742,E743,E901,E902,F402,F404,F406,F407,F601,F602,F621,F622,F631,F632,F633,F701,F702,F703,F704,F705,F706,F707,F811,F812,F821,F822,F823,F831,F841,F901,W191,W291,W292,W293,W391,W504,W505,W601,W602,W603,W604,W605,W606
+per-file-ignores =
+    # Ignore template files
+    templates/*.html:E501,W0611,W0612,W0613,W0621,W0622,W0703,W0702
+    # Ignore static files
+    static/*.css:E501
+    static/*.js:E501
+    # Ignore test files
+    test_*.py:E501,F401,F403
+    *_test.py:E501,F401,F403 

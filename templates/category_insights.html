@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}All Insights - AI Knowledge Assistant{% endblock %}
+{% block title %}{{ category.name if category else 'Category' }} - AI Knowledge Assistant{% endblock %}
 
 {% block content %}
 <div class="space-y-8">
@@ -8,10 +8,26 @@
     <div class="bg-white rounded-lg shadow-sm p-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">
-                    <i class="fas fa-lightbulb text-primary mr-3"></i>All Insights
-                </h1>
-                <p class="text-gray-600 mt-2">Browse and manage your AI-generated insights</p>
+                <div class="flex items-center space-x-3 mb-2">
+                    <a href="{{ url_for('view_all_insights') }}" 
+                       class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {% if category %}
+                            <span class="text-2xl mr-3">{{ category.emoji }}</span>{{ category.name }}
+                        {% else %}
+                            Category Insights
+                        {% endif %}
+                    </h1>
+                </div>
+                <p class="text-gray-600">
+                    {% if category %}
+                        {{ category.description or 'Insights in this category' }}
+                    {% else %}
+                        Browse insights by category
+                    {% endif %}
+                </p>
             </div>
             <div class="flex items-center space-x-4">
                 <a href="{{ url_for('home') }}" 
@@ -26,49 +42,24 @@
         </div>
     </div>
 
-    <!-- Filters and Search -->
+    <!-- Category Navigation -->
+    {% if categories %}
     <div class="bg-white rounded-lg shadow-sm p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Search -->
-            <div class="md:col-span-2">
-                <form method="GET" action="{{ url_for('view_all_insights') }}" class="flex">
-                    <input type="text" name="q" placeholder="Search insights..." 
-                           value="{{ search_query or '' }}"
-                           class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
-                    <button type="submit" 
-                            class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-r-lg">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Category Filter -->
-            <div>
-                <form method="GET" action="{{ url_for('view_all_insights') }}" id="categoryForm">
-                    <input type="hidden" name="q" value="{{ search_query or '' }}">
-                    <select name="category" onchange="this.form.submit()" 
-                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-transparent">
-                        <option value="">All Categories</option>
-                        {% for category in categories %}
-                        <option value="{{ category.name }}" 
-                                {{ 'selected' if current_category == category.name }}>
-                            {{ category.emoji }} {{ category.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </form>
-            </div>
-
-            <!-- Favorite Filter -->
-            <div>
-                <a href="{{ url_for('view_all_insights', favorite='true') }}" 
-                   class="block w-full text-center border border-gray-300 rounded-lg px-3 py-2 hover:bg-gray-50 transition-colors {{ 'bg-yellow-50 border-yellow-300' if favorite_only else '' }}">
-                    <i class="fas fa-star mr-2 {{ 'text-yellow-500' if favorite_only else 'text-gray-400' }}"></i>
-                    Favorites
-                </a>
-            </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-folder text-primary mr-2"></i>All Categories
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for cat in categories %}
+            <a href="{{ url_for('category_insights', category_name=cat.name) }}" 
+               class="flex flex-col items-center p-4 rounded-lg border-2 transition-colors
+                      {{ 'border-primary bg-blue-50' if category and category.name == cat.name else 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}">
+                <span class="text-2xl mb-2">{{ cat.emoji }}</span>
+                <span class="text-sm font-medium text-gray-700 text-center">{{ cat.name }}</span>
+            </a>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
 
     <!-- Insights Grid -->
     {% if insights %}
@@ -106,7 +97,7 @@
             </p>
 
             <!-- Tags -->
-            {% if insight.tags and insight.tags|length > 0 %}
+            {% if insight.tags %}
             <div class="flex flex-wrap gap-1 mb-4">
                 {% for tag in insight.tags[:3] %}
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
@@ -122,7 +113,7 @@
             {% endif %}
 
             <!-- Entities -->
-            {% if insight.entities and insight.entities|length > 0 %}
+            {% if insight.entities %}
             <div class="mb-4">
                 <div class="flex flex-wrap gap-1">
                     {% for entity in insight.entities[:3] %}
@@ -162,7 +153,7 @@
         {% endfor %}
     </div>
 
-    <!-- Pagination or Load More -->
+    <!-- Load More -->
     {% if insights|length >= 15 %}
     <div class="text-center">
         <button class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition-colors">
@@ -175,9 +166,15 @@
     <!-- Empty State -->
     <div class="bg-white rounded-lg shadow-sm p-12 text-center">
         <div class="max-w-md mx-auto">
-            <i class="fas fa-lightbulb text-6xl text-gray-300 mb-6"></i>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No insights yet</h3>
-            <p class="text-gray-600 mb-6">Start by analyzing some content to generate your first insights</p>
+            {% if category %}
+                <span class="text-6xl mb-6 block">{{ category.emoji }}</span>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No insights in this category yet</h3>
+                <p class="text-gray-600 mb-6">Start analyzing content to generate insights in the "{{ category.name }}" category</p>
+            {% else %}
+                <i class="fas fa-folder text-6xl text-gray-300 mb-6"></i>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Category not found</h3>
+                <p class="text-gray-600 mb-6">The requested category doesn't exist or has no insights</p>
+            {% endif %}
             <a href="{{ url_for('home') }}" 
                class="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
                 <i class="fas fa-plus mr-2"></i>Add Your First Insight
@@ -186,20 +183,30 @@
     </div>
     {% endif %}
 
-    <!-- Popular Tags Sidebar -->
-    {% if popular_tags %}
+    <!-- Category Stats -->
+    {% if category %}
     <div class="bg-white rounded-lg shadow-sm p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">
-            <i class="fas fa-tags text-primary mr-2"></i>Popular Tags
+            <i class="fas fa-chart-pie text-primary mr-2"></i>Category Statistics
         </h3>
-        <div class="flex flex-wrap gap-2">
-            {% for tag in popular_tags %}
-            <a href="{{ url_for('view_all_insights', q=tag.tag) }}" 
-               class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
-                {{ tag.tag }}
-                <span class="ml-1 text-blue-600">({{ tag.count }})</span>
-            </a>
-            {% endfor %}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-primary">{{ insights|length }}</div>
+                <div class="text-sm text-gray-600">Total Insights</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-green-600">
+                    {{ insights|selectattr('is_favorite', 'equalto', true)|list|length }}
+                </div>
+                <div class="text-sm text-gray-600">Favorites</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-yellow-600">
+                    {% set avg_confidence = insights|selectattr('confidence_score')|map(attribute='confidence_score')|list|sum / insights|length if insights else 0 %}
+                    {{ "%.0f"|format(avg_confidence * 100) }}%
+                </div>
+                <div class="text-sm text-gray-600">Avg Confidence</div>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -208,7 +215,7 @@
 
 {% block scripts %}
 <script>
-// Add any insights-specific JavaScript here
+// Add any category-specific JavaScript here
 document.addEventListener('DOMContentLoaded', function() {
     // Add hover effects to insight cards
     const cards = document.querySelectorAll('.insight-card');
@@ -221,6 +228,20 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0)';
         });
     });
+
+    // Add hover effects to category cards
+    const categoryCards = document.querySelectorAll('a[href*="/categories/"]');
+    categoryCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (!this.classList.contains('border-primary')) {
+                this.style.transform = 'scale(1.05)';
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
 });
 </script>
-{% endblock %}
+{% endblock %} 

@@ -25,60 +25,84 @@ def extract_insights_from_text(content: str, source_type: str = 'general') -> st
 
     # Build the prompt to send to the AI model
     prompt = f"""
-    Analyze this {source_type} content as both an AI implementation consultant AND investor, prioritizing SME/MSP insights while capturing significant emerging technologies. Extract:
+    You are analyzing {source_type} content as an AI implementation consultant AND investor focused on SME/MSP opportunities. Extract ONLY high-value, actionable insights with specific business metrics.
 
-    **Core Focus** (Strict SME/MSP relevance):
-    1. Opportunities to implement AI solutions for SMEs (<500 employees)
-    2. Signals of traditional MSPs transitioning to AI service providers
-    3. Emerging AI tools/services with SME product-market fit
+    **STRICT FILTERING CRITERIA - REJECT insights unless they include:**
 
-    **Strategic Horizon Scanning** (**Looser criteria**):
-    4. 🌟 **Emerging Tech Breakthroughs**: Novel capabilities, research frontiers, or disruptive technologies with future SME/MSP potential
+    **For SME/MSP insights - AT LEAST ONE of:**
+    - Specific cost figures ($X/month, $X implementation, $X savings)
+    - ROI percentages or time-to-value metrics
+    - Named tools/vendors with SME pricing tiers
+    - Concrete implementation timelines (weeks/months)
+    - Evidence of MSPs already offering these services
+    - Client case studies with quantified results
 
-    **Content Excerpt**:
+    **For Tech Frontiers - AT LEAST ONE of:**
+    - Performance benchmarks (X% improvement, X speedup)
+    - Research paper citations or breakthrough claims
+    - New capabilities that didn't exist 6 months ago
+    - Technical specifications that enable new use cases
+    - Evidence of commercial viability within 2-5 years
+
+    **Content to Analyze:**
     {content[:3000]}
 
-    **Priority Insight Categories**:
-    1. ⚙️ **SME Implementation**: Frameworks, cost barriers, ROI cases specific to small businesses
-    2. 🔌 **MSP Transformation**: Upskilling initiatives, AI service launches, acquisitions
-    3. 🚀 **SME-Ready Tools**: Vertical SaaS, no-code platforms under $5k/year
+    **INSIGHT CATEGORIES (Extract 1-3 maximum per category):**
+
+    1. ⚙️ **SME Implementation**: 
+    - Focus: Specific tools, costs, implementation strategies
+    - Reject: Vague "AI can help" statements without specifics
+
+    2. 🔌 **MSP Transformation**: 
+    - Focus: Named MSPs, service offerings, revenue data, client wins
+    - Reject: Generic "MSPs should consider AI" advice
+
+    3. 🚀 **SME-Ready Tools**: 
+    - Focus: Named products, pricing tiers, specific features for <500 employees
+    - Reject: Enterprise tools without clear SME pathway
+
     4. 💰 **Investment Signals**: 
-    - MSPs with >30% AI revenue growth 
-    - Startups solving SME pain points
-    5. 🌟 **Tech Frontiers**: (NEW)
-    - Fundamental model advances
-    - Novel architectures/techniques
-    - Emerging capabilities with 2-5 yr horizon
-    - Paradigm shifts in AI development
+    - Focus: Funding rounds, revenue growth %, specific company metrics
+    - Reject: Market size predictions without concrete data
 
-    **For each insight**:
-    → **Headline**: Max 8 words 
-    → **Relevance**: 
-    - For SME/MSP: [Specific business impact]
-    - For Tech Frontiers: [Why this matters for AI's future]
-    → **Evidence**: Key metric/quote
-    → **Action**: [Implementation/Investment/Research/Monitor]
-    → **Confidence**: High/Med/Low
+    5. 🌟 **Tech Frontiers**: 
+    - Focus: Novel capabilities, breakthrough performance, new research
+    - Reject: Incremental improvements or well-known techniques
 
-    **Filtering Rules**:
-    - ✅ **SME/MSP Insights**: MUST include:
-    • SME cost savings >20% OR 
-    • MSP service expansion evidence OR 
-    • Investment-grade metrics
-    - ✅ **Tech Frontiers**: MUST be:
-    • Fundamentally novel (not incremental)
-    • Demonstrate 10x+ capability improvement
-    • Show research/industry validation
-    - 🚫 Exclude enterprise-only solutions without SME pathway
+    **ENHANCED OUTPUT FORMAT:**
+    [Category Icon] **[Specific Company/Tool/Technique Name]: [Concrete Outcome]**  
+    - **Business Impact**: [Quantified benefit - $X saved, Y% improvement, Z hours reduced]  
+    - **Evidence**: "[SPECIFIC quote with numbers/names/metrics]"  
+    - **Implementation**: [Concrete next steps with timeframe]  
+    - **Investment Thesis**: [Why this matters for SME/MSP market - be specific]
+    - **Confidence**: High/Med/Low
 
-    **Output Format**:
-    [Category Icon] **Headline**  
-    • Relevance: [Concise justification]  
-    • Evidence: "[excerpt]"  
-    • Action: [Primary action]  
-    • Confidence: High/Med/Low  
+    **QUALITY EXAMPLES:**
 
-    If no insights meet criteria: "No actionable insights found."
+    ✅ GOOD:
+    [🚀 SME-Ready Tools] **Zapier Central: 40% Admin Time Reduction**  
+    - Business Impact: SMEs save 15-20 hours/week on manual data entry tasks
+    - Evidence: "Customer case study showed 40% reduction in administrative overhead"
+    - Implementation: 2-week pilot with 3 core workflows, $99/month tier
+    - Investment Thesis: Addresses #1 SME pain point (manual processes) with proven ROI
+    - Confidence: High
+
+    ❌ BAD (like your current output):
+    [⚙️ SME Implementation] **Opportunities in Knowledge Graph Implementation for SMEs**  
+    - Relevance: Potential for improved data retrieval and knowledge organization.  
+    - Evidence: "Knowledge graphs are starting to be used as well..."  
+
+    **STRICT REJECTION CRITERIA:**
+    - No specific company/product names mentioned
+    - No quantified benefits or costs
+    - Generic statements about "potential" or "opportunities"
+    - Evidence quotes under 10 words or purely definitional
+    - Insights that could apply to any technology (not AI-specific)
+
+    **If content doesn't meet these criteria, respond exactly:**
+    "No actionable insights found. Content lacks specific metrics, named vendors, or quantified business outcomes required for SME/MSP analysis."
+
+    Analyze the content and extract insights following these enhanced criteria.
     """
     try:
         # Create a client with explicit httpx configuration to avoid proxies issue
@@ -97,7 +121,7 @@ def extract_insights_from_text(content: str, source_type: str = 'general') -> st
                 {"role": "system", "content": "You are an expert analyst specializing in AI, technology, and business intelligence. Extract only the most valuable and actionable insights."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=800,  # Limit the response length
+                         max_tokens=800,  # Limit the response length
             temperature=0.3  # Low temperature = more factual and less creative output
         )
 
@@ -125,67 +149,67 @@ def extract_entities_from_insights(insights: str) -> List[Dict[str, Any]]:
 
     # Build the prompt asking GPT to extract named entities from the insights
     prompt = f"""
-    Extract entities from these insights with priority given to SME/AI-relevant entities. Follow these rules:
+    Extract ONLY explicitly named entities from these insights. Focus on actionable business intelligence.
 
-    **Entity Types to Extract**:
+    **STRICT EXTRACTION RULES:**
+
+    **ONLY Extract if EXPLICITLY NAMED in the insights:**
+    - Company names with specific context (not just "companies are...")
+    - Product names with version numbers or specific features
+    - People with titles and company affiliations
+    - Technologies with specific implementations (not generic terms)
+    - Research institutions with specific projects/papers
+
+    **Entity Types - REQUIRE SPECIFIC NAMES:**
+
     1. 🏢 **Companies**: 
-    - AI tool vendors (especially SME-focused)
-    - MSPs/MSSPs with AI services
-    - Startups with under $20M funding
+    - ✅ Extract: "Zapier", "Microsoft Copilot", "OpenAI GPT-4"
+    - ❌ Skip: "AI companies", "major tech firms", "startups"
+
     2. 👥 **People**:
-    - CTOs/Founders of SME AI companies
-    - Key researchers behind emerging tech
-    - MSP transformation leaders
-    3. ⚙️ **Technologies**:
-    - SME-implementable tools (no-code, <$10k)
-    - Emerging architectures (e.g., MoE, SSMs)
-    - AI capabilities with consulting relevance
-    4. 📚 **Research Institutions** (NEW):
-    - Labs publishing breakthrough papers
-    - University tech transfer programs
-    5. 📈 **Products/Services** (NEW):
-    - Commercial AI products mentioned
-    - MSP service offerings
+    - ✅ Extract: "John Smith, CTO of TechCorp"
+    - ❌ Skip: "executives", "researchers", "industry leaders"
 
-    **Special Handling**:
-    - **Boost confidence** for:
-    • Companies with "SME", "SMB", or "mid-market" in context
-    • Technologies under $10k/year licensing
-    • MSPs offering AI migration
-    - **Suppress**:
-    • Enterprise-only solution providers
-    • Generic executive titles without name (e.g., "a Google VP")
-    • Overly broad technologies ("AI", "machine learning")
+    3. ⚙️ **Technologies/Products**:
+    - ✅ Extract: "Claude 3.5", "GPT-4 Turbo", "Anthropic Constitutional AI"
+    - ❌ Skip: "large language models", "AI tools", "machine learning"
 
-    **Output Rules**:
-    - Use normalized names (e.g., "GPT-4" not "new GPT model")
-    - **Confidence scoring**:
-    • 0.9-1.0: Explicitly named + SME/MSP context
-    • 0.7-0.8: Explicitly named + no context
-    • 0.5-0.6: Implied but unambiguous
-    - Deduplicate entities (keep highest confidence)
-    - Include parent companies for products (e.g., "Gemini (Google)")
+    4. 📚 **Research/Institutions**:
+    - ✅ Extract: "Stanford HAI", "DeepMind", "MIT CSAIL"
+    - ❌ Skip: "research shows", "studies indicate"
 
-    **JSON Format**:
+    **Enhanced Confidence Scoring:**
+    - **0.95-1.0**: Named + quantified context (pricing, metrics, timelines)
+    - **0.8-0.9**: Named + business context (use case, industry)
+    - **0.6-0.7**: Named + minimal context
+    - **<0.6**: Don't include (too vague)
+
+    **SME Relevance Scoring:**
+    - **true**: <$10k annual cost, <500 employee focus, MSP-deliverable
+    - **false**: Enterprise-only, >$50k cost, requires specialized teams
+
+    **OUTPUT FORMAT (JSON only):**
     [
     {{
-        "name": "OpenAI",
-        "type": "company",
-        "subtype": "AI vendor",  # NEW FIELD
-        "confidence": 0.95,
-        "sme_relevance": true  # NEW FIELD
-    }},
-    {{
-        "name": "Retrieval-Augmented Generation",
-        "type": "technology",
-        "subtype": "NLP technique",
-        "confidence": 0.85,
-        "sme_relevance": false
+        "name": "EXACT NAME from text",
+        "type": "company/person/technology/institution/product",
+        "subtype": "specific category like AI vendor, no-code platform",
+        "confidence": 0.6-1.0,
+        "sme_relevance": true/false,
+        "context": "Brief context from insights - what makes this relevant"
     }}
     ]
 
-    Insights:
+    **QUALITY CONTROL:**
+    - If no specific entities are named in insights, return: []
+    - Deduplicate entities (keep highest confidence version)
+    - Normalize names (e.g., "OpenAI's GPT-4" → "GPT-4")
+    - Include parent company context where relevant
+
+    **Insights to analyze:**
     {insights}
+
+    Extract entities following these strict criteria. Return empty array [] if no specifically named entities found.
     """
 
     try:
@@ -202,7 +226,7 @@ def extract_entities_from_insights(insights: str) -> List[Dict[str, Any]]:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=400,  # Keep response short and structured
+                         max_tokens=400,  # Keep response short and structured
             temperature=0.1  # Very low temperature for reliable, factual output
         )
 

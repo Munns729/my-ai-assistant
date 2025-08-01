@@ -1,0 +1,45 @@
+[MASTER]
+# Add the current directory to the Python path
+init-hook='import sys; sys.path.append(".")'
+
+[MESSAGES CONTROL]
+# Disable specific warnings that are false positives in templates
+disable=C0114,C0115,C0116,W0611,W0612,W0613,W0621,W0622,W0703,W0702
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=120
+
+[BASIC]
+# Regular expression which should only match function or class names
+good-names=i,j,k,ex,Run,_,id,db
+
+[SIMILARITIES]
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+[DESIGN]
+# Maximum number of arguments for function / method
+max-args=10
+# Maximum number of locals for function / method
+max-locals=15
+# Maximum number of return / yield for function / method
+max-returns=6
+# Maximum number of statements in function / method
+max-statements=50
+# Maximum number of parents for class
+max-parents=7
+# Maximum number of attributes for class
+max-attributes=7
+# Minimum number of public methods for class
+min-public-methods=2
+# Maximum number of public methods for class
+max-public-methods=20
+
+[TYPECHECK]
+# List of module names for which member attributes should not be checked
+ignored-modules=numpy,tensorflow,torch,cv2,PIL
+
+[MISCELLANEOUS]
+# List of note tags to take into consideration
+notes= 

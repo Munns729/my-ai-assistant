@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - AI Knowledge Assistant{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">
+                    <i class="fas fa-chart-bar text-primary mr-3"></i>Analytics Dashboard
+                </h1>
+                <p class="text-gray-600 mt-2">Comprehensive insights and statistics about your AI knowledge base</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Last updated</p>
+                <p class="text-lg font-semibold text-gray-900">{{ analytics.get('last_updated', 'Now') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Insights -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-primary">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-lightbulb text-3xl text-primary"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Insights</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ analytics.get('total_insights', 0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Week -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-calendar-week text-3xl text-green-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">This Week</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ analytics.get('insights_this_week', 0) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Confidence -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-yellow-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-star text-3xl text-yellow-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Avg Confidence</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ "%.1f"|format(analytics.get('avg_confidence', 0) * 100) }}%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-tags text-3xl text-purple-500"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Categories</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ analytics.get('category_distribution', [])|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Detailed Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Category Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-chart-pie text-primary mr-2"></i>Category Distribution
+            </h3>
+            {% if analytics.get('category_distribution') %}
+                <div class="space-y-3">
+                    {% for category in analytics.category_distribution %}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full mr-3" 
+                                 style="background-color: {{ ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'][loop.index0 % 6] }}"></div>
+                            <span class="text-sm font-medium text-gray-700">{{ category.category }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500 mr-2">{{ category.count }}</span>
+                            <span class="text-xs text-gray-400">insights</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">No category data available</p>
+            {% endif %}
+        </div>
+
+        <!-- Popular Tags -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-tags text-primary mr-2"></i>Popular Tags
+            </h3>
+            {% if analytics.get('popular_tags') %}
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in analytics.popular_tags[:10] %}
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ tag.tag }}
+                        <span class="ml-1 text-blue-600">({{ tag.count }})</span>
+                    </span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-8">No tag data available</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Popular Entities -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-building text-primary mr-2"></i>Popular Entities
+        </h3>
+        {% if analytics.get('popular_entities') %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for entity in analytics.popular_entities[:12] %}
+                <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="flex-shrink-0">
+                        {% if entity.entity_type == 'company' %}
+                            <i class="fas fa-building text-blue-500"></i>
+                        {% elif entity.entity_type == 'person' %}
+                            <i class="fas fa-user text-green-500"></i>
+                        {% elif entity.entity_type == 'technology' %}
+                            <i class="fas fa-microchip text-purple-500"></i>
+                        {% else %}
+                            <i class="fas fa-tag text-gray-500"></i>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">{{ entity.entity_name }}</p>
+                        <p class="text-xs text-gray-500">{{ entity.entity_type|title }}</p>
+                    </div>
+                    <div class="ml-auto">
+                        <span class="text-xs text-gray-400">{{ entity.count }} mentions</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 text-center py-8">No entity data available</p>
+        {% endif %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-bolt text-primary mr-2"></i>Quick Actions
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{{ url_for('view_all_insights') }}" 
+               class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                <i class="fas fa-lightbulb text-blue-500 text-xl mr-3"></i>
+                <div>
+                    <p class="font-medium text-blue-900">View All Insights</p>
+                    <p class="text-sm text-blue-700">Browse your complete knowledge base</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('export_page') }}" 
+               class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                <i class="fas fa-download text-green-500 text-xl mr-3"></i>
+                <div>
+                    <p class="font-medium text-green-900">Export Data</p>
+                    <p class="text-sm text-green-700">Download insights in JSON or CSV</p>
+                </div>
+            </a>
+            
+            <a href="{{ url_for('home') }}" 
+               class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                <i class="fas fa-plus text-purple-500 text-xl mr-3"></i>
+                <div>
+                    <p class="font-medium text-purple-900">Add New Insight</p>
+                    <p class="text-sm text-purple-700">Analyze new content with AI</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+            <i class="fas fa-clock text-primary mr-2"></i>Recent Activity
+        </h3>
+        <div class="space-y-4">
+            {% for insight in recent_insights[:5] %}
+            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-lightbulb text-yellow-500"></i>
+                </div>
+                <div class="ml-3 flex-1">
+                    <p class="text-sm font-medium text-gray-900">{{ insight.title or 'Untitled Insight' }}</p>
+                    <p class="text-xs text-gray-500">{{ insight.created_at }}</p>
+                </div>
+                <div class="ml-3">
+                    <a href="{{ url_for('view_insight', insight_id=insight.id) }}" 
+                       class="text-blue-600 hover:text-blue-800 text-sm">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-gray-500 text-center py-4">No recent activity</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add any analytics-specific JavaScript here
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-refresh analytics every 30 seconds
+        setInterval(function() {
+            // You could add AJAX calls here to refresh data
+        }, 30000);
+    });
+</script>
+{% endblock %} 
